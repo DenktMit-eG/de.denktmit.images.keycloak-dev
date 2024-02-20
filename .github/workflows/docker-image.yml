@@ -1,0 +1,26 @@
+name: Build and Push Docker Image
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build_and_push:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v3
+        
+      - name: Login to Docker Hub
+        run: |
+          echo ${{ secrets.DOCKER_HUB_CRUD_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_CRUD_USER }} --password-stdin
+             
+      - name: Build, tag and push Docker image
+        id: build_image
+        run: |
+          IMAGE_NAME="denktmiteg/keycloak-dev"
+          DATETIME_TAG=$(date +'%Y%m%d%H%M%S')
+          docker build . --file Dockerfile --tag $IMAGE_NAME:23.0.6-latest --tag $IMAGE_NAME:23.0.6-$DATETIME_TAG
+          docker push $IMAGE_NAME:23.0.6-latest
+          docker push $IMAGE_NAME:23.0.6-$DATETIME_TAG
